@@ -1,5 +1,7 @@
 streamlit
 python-docx
-pydub
+soundfile
+noisereduce
+numpy
 faster-whisper
 google-generativeai

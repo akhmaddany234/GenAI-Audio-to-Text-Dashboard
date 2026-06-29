@@ -2,8 +2,9 @@ import streamlit as st
 import os
 import sys
 import tempfile
+import soundfile as sf
+import subprocess
 from datetime import datetime
-from pydub import AudioSegment
 
 # Add workspace path to sys.path to resolve src imports
 project_root = os.path.dirname(os.path.abspath(__file__))
@@ -228,12 +229,24 @@ with col_main:
         
         # Audio metadata & player
         try:
-            audio_segment = AudioSegment.from_file(temp_audio_path)
-            audio_dur = len(audio_segment) / 1000.0
+            # Convert to a temporary WAV to read metadata safely
+            temp_wav = os.path.join(temp_dir, "metadata_temp.wav")
+            cmd = ['ffmpeg', '-y', '-i', temp_audio_path, temp_wav]
+            subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
+            
+            try:
+                info = sf.info(temp_wav)
+                audio_dur = info.duration
+                channels = info.channels
+                frame_rate = info.samplerate
+            finally:
+                if os.path.exists(temp_wav):
+                    os.unlink(temp_wav)
+                    
             st.session_state['processed_audio_info'] = {
                 "duration": audio_dur,
-                "channels": audio_segment.channels,
-                "frame_rate": audio_segment.frame_rate,
+                "channels": channels,
+                "frame_rate": frame_rate,
                 "file_name": uploaded_file.name
             }
             
@@ -246,7 +259,7 @@ with col_main:
                 st.markdown("##### 🧼 Audio Hasil Pembersihan Noise (Noise-Reduced)")
                 st.audio(st.session_state['reduced_audio_bytes'], format="audio/wav")
                 
-            st.markdown(f"**Nama file:** `{uploaded_file.name}` | **Durasi:** `{audio_dur:.2f} detik` ({audio_dur/60:.2f} menit) | **Sample Rate:** `{audio_segment.frame_rate} Hz`")
+            st.markdown(f"**Nama file:** `{uploaded_file.name}` | **Durasi:** `{audio_dur:.2f} detik` ({audio_dur/60:.2f} menit) | **Sample Rate:** `{frame_rate} Hz`")
             
             # 📊 Audio Statistics & Visualization
             with st.expander("📊 Analisis & Visualisasi Audio (Deteksi Noise)"):
@@ -366,11 +379,9 @@ with col_main:
                         sliced_path = ""
                         if enable_audio_slicing:
                             st.write("Sedang memotong audio...")
-                            # Load the correct base segment
-                            base_segment = AudioSegment.from_file(base_audio_path)
-                            sliced_segment = base_segment[start_sec * 1000:end_sec * 1000]
                             sliced_path = os.path.join(temp_dir, f"sliced_{uploaded_file.name}")
-                            sliced_segment.export(sliced_path, format=os.path.splitext(uploaded_file.name)[1].replace('.', ''))
+                            cmd = ['ffmpeg', '-y', '-ss', str(start_sec), '-to', str(end_sec), '-i', base_audio_path, sliced_path]
+                            subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
                             input_audio_path = sliced_path
                         
                         # 3. Inisialisasi transcriber
