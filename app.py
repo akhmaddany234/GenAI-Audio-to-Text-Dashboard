@@ -391,7 +391,24 @@ with col_main:
                             compute_type=whisper_compute_type
                         )
                         
-                        raw_text = transcriber.transcribe(input_audio_path, language="id")
+                        # Setup progress indicators
+                        progress_bar = st.progress(0.0)
+                        status_text = st.empty()
+                        
+                        def update_progress(current, total, chunk_text):
+                            percent = float(current) / float(total)
+                            progress_bar.progress(percent)
+                            status_text.info(f"Mengolah bagian {current} dari {total}...")
+                        
+                        raw_text = transcriber.transcribe(
+                            input_audio_path,
+                            language="id",
+                            progress_callback=update_progress
+                        )
+                        
+                        progress_bar.empty()
+                        status_text.empty()
+                        
                         st.session_state['raw_transcript'] = raw_text
                         st.session_state['corrected_transcript'] = "" # Reset downstream
                         st.session_state['final_report'] = "" # Reset downstream
