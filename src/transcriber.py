@@ -58,7 +58,7 @@ class AudioTranscriber:
         progress_callback=None
     ):
         duration = self._get_audio_duration(audio_path)
-        chunk_limit = 300.0  # 5 minutes in seconds
+        chunk_limit = 120.0  # 5 minutes in seconds
 
         if duration <= chunk_limit:
             segments, info = self.model.transcribe(
@@ -111,4 +111,4 @@ class AudioTranscriber:
                 if os.path.exists(chunk_file):
                     os.unlink(chunk_file)
 
-        return " ".join(full_transcript).strip()
+        return " ".join(full_transcript).strip()
