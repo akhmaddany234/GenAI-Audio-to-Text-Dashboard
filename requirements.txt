@@ -3,3 +3,4 @@ python-docx
 pydub
 faster-whisper
 google-generativeai
+pyaudioop
