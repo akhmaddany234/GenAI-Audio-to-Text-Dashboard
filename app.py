@@ -149,6 +149,12 @@ whisper_model_size = st.sidebar.selectbox(
     index=2, # default small
     help="Higher sizes yield better accuracy but require more time and system memory."
 )
+transcription_mode = st.sidebar.selectbox(
+    "Metode Transkripsi",
+    options=["Langsung (Seluruh Audio)", "Bagi per 5 Menit (Chunk)"],
+    index=0,
+    help="Mode 'Langsung' mentranskrip seluruh audio sekaligus tanpa memotong. Mode 'Bagi per 5 Menit' memecah audio menjadi beberapa bagian (lebih stabil untuk file besar)."
+)
 whisper_device = st.sidebar.selectbox(
     "Device",
     options=["cpu", "cuda"],
@@ -392,6 +398,8 @@ with col_main:
                         )
                         
                         # Setup progress indicators
+                        use_chunking = (transcription_mode == "Bagi per 5 Menit (Chunk)")
+                        
                         progress_bar = st.progress(0.0)
                         status_text = st.empty()
                         
@@ -403,7 +411,8 @@ with col_main:
                         raw_text = transcriber.transcribe(
                             input_audio_path,
                             language="id",
-                            progress_callback=update_progress
+                            progress_callback=update_progress if use_chunking else None,
+                            chunking=use_chunking
                         )
                         
                         progress_bar.empty()

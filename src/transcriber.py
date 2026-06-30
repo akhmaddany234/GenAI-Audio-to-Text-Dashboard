@@ -55,12 +55,13 @@ class AudioTranscriber:
         self,
         audio_path,
         language="id",
-        progress_callback=None
+        progress_callback=None,
+        chunking=True
     ):
         duration = self._get_audio_duration(audio_path)
-        chunk_limit = 120.0  # 5 minutes in seconds
+        chunk_limit = 300.0  # 5 minutes in seconds
 
-        if duration <= chunk_limit:
+        if not chunking or duration <= chunk_limit:
             segments, info = self.model.transcribe(
                 audio_path,
                 language=language
