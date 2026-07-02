@@ -96,7 +96,7 @@ st.markdown("""
 st.markdown("""
     <div class="title-container">
         <h1>🎙️ GenAI Audio to Text & Analysis</h1>
-        <p>Transkripsikan audio secara cerdas, koreksi tata bahasa, dan buat laporan notulensi atau evaluasi wawancara otomatis menggunakan Gemini AI</p>
+        <p>Transkripsikan audio secara cerdas, koreksi tata bahasa, dan buat laporan notulensi atau evaluasi wawancara otomatis menggunakan AI</p>
     </div>
 """, unsafe_allow_html=True)
 
@@ -449,11 +449,11 @@ with col_main:
         else:
             col_corr1, col_corr2 = st.columns(2)
             with col_corr1:
-                st.write("Gunakan LLM Gemini untuk mengoreksi typo, tata bahasa, nama tempat, dan memformat percakapan tanpa mengubah makna asli.")
+                st.write("Gunakan AI untuk mengoreksi typo, tata bahasa, nama tempat, dan memformat percakapan tanpa mengubah makna asli.")
                 
             with col_corr2:
                 if st.button("✨ Jalankan Koreksi Otomatis", key="btn_correct", use_container_width=True):
-                    with st.spinner("Mengoreksi teks transkrip menggunakan Gemini AI..."):
+                    with st.spinner("Mengoreksi teks transkrip menggunakan AI..."):
                         try:
                             raw_text_to_correct = st.session_state['raw_transcript']
                             if is_interview:
